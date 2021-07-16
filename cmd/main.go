@@ -25,7 +25,7 @@ func NewMain() *Main {
 }
 
 func (m *Main) Run() error {
-	if m.SheetName == "" || m.Xlsx == "" {
+	if m.Xlsx == "" {
 		return fmt.Errorf("确保参数正确")
 	}
 	return nil
@@ -45,7 +45,27 @@ func main() {
 		return
 	}
 
-	rows, err := f.Rows(conf.SheetName)
+	if conf.SheetName != "" {
+		dealSheet(f, conf.SheetName, conf)
+	} else {
+		sheets := f.GetSheetList()
+		for _, name := range sheets {
+			dealSheet(f, name, conf)
+		}
+	}
+
+	err = f.SaveAs("output.xlsx")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+}
+
+func dealSheet(f *excelize.File, sheetName string, conf *Main) {
+
+	fmt.Println("开始处理表格：" + sheetName)
+
+	rows, err := f.Rows(sheetName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,7 +83,7 @@ func main() {
 				if err == nil {
 					translated, err := translate(colCell, conf.Lang, conf.Target)
 					if err != nil && translated != "" {
-						_ = f.SetCellValue(conf.SheetName, name, translated)
+						_ = f.SetCellValue(sheetName, name, translated)
 					}
 
 				}
@@ -72,23 +92,4 @@ func main() {
 		row++
 	}
 
-	err = f.SaveAs("output.xlsx")
-	if err != nil {
-		fmt.Println(err)
-	}
-
 }
-
-// func translate(text string) string {
-
-// 	fmt.Println("正在翻译：" + text)
-
-// 	translated, err := gt.Translate(text, "auto", "en")
-// 	fmt.Println(translated)
-
-// 	if err != nil {
-// 		return ""
-// 	}
-
-// 	return translated
-// }
