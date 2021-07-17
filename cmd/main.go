@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/jaffee/commandeer"
@@ -54,11 +55,17 @@ func main() {
 		}
 	}
 
-	err = f.SaveAs("output.xlsx")
+	fmt.Println("正在导出表格...")
+
+	pwd, _ := os.Getwd()
+	outputPath := pwd + "output.xlsx"
+
+	err = f.SaveAs(outputPath)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
-
+	fmt.Println("已导出表格在" + outputPath)
 }
 
 func dealSheet(f *excelize.File, sheetName string, conf *Main) {
@@ -82,7 +89,7 @@ func dealSheet(f *excelize.File, sheetName string, conf *Main) {
 				name, err := excelize.CoordinatesToCellName(index+1, row+1)
 				if err == nil {
 					translated, err := translate(colCell, conf.Lang, conf.Target)
-					if err != nil && translated != "" {
+					if err == nil && translated != "" {
 						_ = f.SetCellValue(sheetName, name, translated)
 					}
 
