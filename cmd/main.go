@@ -58,7 +58,7 @@ func main() {
 	fmt.Println("正在导出表格...")
 
 	pwd, _ := os.Getwd()
-	outputPath := pwd + "output.xlsx"
+	outputPath := pwd + "/output.xlsx"
 
 	err = f.SaveAs(outputPath)
 	if err != nil {
